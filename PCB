@@ -1,0 +1,125 @@
+import java.util.*;
+
+// Process Control Block (PCB) class
+class PCB {
+    int processId;
+    int burstTime;
+    int arrivalTime;
+    int remainingTime; // for Round Robin
+
+    public PCB(int processId, int burstTime, int arrivalTime) {
+        this.processId = processId;
+        this.burstTime = burstTime;
+        this.arrivalTime = arrivalTime;
+        this.remainingTime = burstTime;
+    }
+
+    @Override
+    public String toString() {
+        return "ProcessID: " + processId + ", BurstTime: " + burstTime + ", ArrivalTime: " + arrivalTime;
+    }
+}
+
+// FCFS Scheduling
+class FCFS {
+    Queue<PCB> queue;
+
+    public FCFS() {
+        queue = new LinkedList<>();
+    }
+
+    public void addProcess(PCB pcb) {
+        queue.add(pcb);
+    }
+
+    public void schedule() {
+        System.out.println("FCFS Scheduling:");
+        while (!queue.isEmpty()) {
+            PCB pcb = queue.poll();
+            System.out.println("Executing " + pcb);
+        }
+    }
+}
+
+// SJF Scheduling
+class SJF {
+    PriorityQueue<PCB> priorityQueue;
+
+    public SJF() {
+        priorityQueue = new PriorityQueue<>(Comparator.comparingInt(pcb -> pcb.burstTime));
+    }
+
+    public void addProcess(PCB pcb) {
+        priorityQueue.add(pcb);
+    }
+
+    public void schedule() {
+        System.out.println("SJF Scheduling:");
+        while (!priorityQueue.isEmpty()) {
+            PCB pcb = priorityQueue.poll();
+            System.out.println("Executing " + pcb);
+        }
+    }
+}
+
+// Round Robin Scheduling
+class RoundRobin {
+    Queue<PCB> queue;
+    int timeQuantum;
+
+    public RoundRobin(int timeQuantum) {
+        this.queue = new LinkedList<>();
+        this.timeQuantum = timeQuantum;
+    }
+
+    public void addProcess(PCB pcb) {
+        queue.add(pcb);
+    }
+
+    public void schedule() {
+        System.out.println("Round Robin Scheduling:");
+        while (!queue.isEmpty()) {
+            PCB pcb = queue.poll();
+            if (pcb.remainingTime > timeQuantum) {
+                System.out.println("Executing " + pcb + " for " + timeQuantum + " units");
+                pcb.remainingTime -= timeQuantum;
+                queue.add(pcb);
+            } else {
+                System.out.println("Executing " + pcb + " for " + pcb.remainingTime + " units (Process Completed)");
+            }
+        }
+    }
+}
+
+public class CPUSchedulingSimulation {
+    public static void main(String[] args) {
+        // Sample PCBs
+        List<PCB> pcbs = new LinkedList<>();
+        pcbs.add(new PCB(1, 5, 0));
+        pcbs.add(new PCB(2, 3, 1));
+        pcbs.add(new PCB(3, 8, 2));
+        pcbs.add(new PCB(4, 6, 3));
+
+        // FCFS Scheduling
+        FCFS fcfs = new FCFS();
+        for (PCB pcb : pcbs) {
+            fcfs.addProcess(pcb);
+        }
+        fcfs.schedule();
+
+        // SJF Scheduling
+        SJF sjf = new SJF();
+        for (PCB pcb : pcbs) {
+            sjf.addProcess(pcb);
+        }
+        sjf.schedule();
+
+        // Round Robin Scheduling
+        int timeQuantum = 4;
+        RoundRobin rr = new RoundRobin(timeQuantum);
+        for (PCB pcb : pcbs) {
+            rr.addProcess(pcb);
+        }
+        rr.schedule();
+    }
+}
